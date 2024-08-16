@@ -16,7 +16,7 @@ This script runs in the background and listens for hotkeys, then uses a Large La
 
 2. Install dependencies:
    ```
-   pip install pynput pyperclip httpx llms
+   pip install pynput pyperclip httpx pyllms
    ```
 
 3. Run the script:
