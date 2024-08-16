@@ -1,83 +1,70 @@
-# AI powered typing assistant with Ollama
+# AI-powered Typing Assistant with local (through Ollama) or external models (through PyLLMs)
 
-A script that can run in the background and listen to hotkeys, then uses a Large Language Model to fix the text. Less than 100 lines of code.
+This script runs in the background and listens for hotkeys, then uses a Large Language Model to fix or improve text. It's inspired by Andrej Karpathy's tweet about GPT's ability to correct minor typos, allowing for faster writing.
 
-Inspired by this tweet:
+## Features
 
-https://twitter.com/karpathy/status/1725553780878647482
+- Uses Ollama or any external model supported by PyLLMs for text processing
+- Supports multiple hotkeys for different text operations
+- Can fix typos, improve writing style, and restructure notes
 
-> "GPT is surprisingly good at correcting minor typos, so you can write really really fast, ignore mistakes and keep going, and it comes out just fine." - Andrej Karpathy
+## Setup
 
-You'll find a demo and step-by-step code explanations on my YouTube channel:
+1. Set up Ollama (if using Ollama):
+   - Install Ollama: https://github.com/ollama/ollama
+   - Run: `ollama run mistral:7b-instruct-v0.2-q4_K_S`
 
- [![Alt text](https://img.youtube.com/vi/IUTFrexghsQ/hqdefault.jpg)](https://youtu.be/IUTFrexghsQ)
+2. Install dependencies:
+   ```
+   pip install pynput pyperclip httpx llms
+   ```
 
-## Get Started
+3. Run the script:
+   ```
+   python key.py
+   ```
 
-### 1. Set up Ollama
+## Usage
 
-Ollama Installation: https://github.com/ollama/ollama
+Default Hotkeys:
+- F8: Restructure and polish the entire note
+- F9: Fix typos in the current line
+- F10: Fix typos in the current selection
+- F11: Improve writing style of the current selection
 
-Run `ollama run mistral:7b-instruct-v0.2-q4_K_S`
+Note: On macOS, you may need to add the script (IDE/terminal) to both accessibility and input monitoring settings.
 
-Mistal 7B Instruct works well for this task, but feel free to try other models, too :)
+## Customization
 
-### 2. Install dependencies
+The script can be easily customized:
+- Modify `OLLAMA_CONFIG` to change the Ollama model or settings
+- Edit `PROMPT_TEMPLATES` to change how text is processed
+- Adjust `function_key_map` to modify hotkey assignments or add new operations
+
+To extend mappings:
+1. Add a new prompt template to `PROMPT_TEMPLATES`:
+   ```python
+   "new_operation": Template("Your prompt here $text"),
+   ```
+2. Add a new entry to `function_key_map`:
+   ```python
+   "<key_code>": ("Key_Name", select_function, "new_operation"),
+   ```
+   Where `<key_code>` is the pynput key code, `"Key_Name"` is a descriptive name,
+   `select_function` is either `None` or a function to select text, and
+   `"new_operation"` is the key of your new prompt template.
+
+## Command-line Options
+
+- Use `-m` or `--model` to specify a PyLLMs model instead of Ollama
+
+Examples:
 ```
-pip install pynput pyperclip httpx
+python key.py -m gpt-4o-mini
 ```
 
-- pynput: https://pynput.readthedocs.io/en/latest/
-- pyperclip: https://github.com/asweigart/pyperclip
-- httpx: https://github.com/encode/httpx/
+## Notes
 
-### 3. Run it
-
-Start the assistant:
-
-```
-python main.py
-```
-
-Hotkeys you can then press:
-
-- F9: Fixes the current line (without having to select the text)
-- F10: Fixes the current selection
-
-**Note**: You may get an error the first time saying `This process is not trusted! Input event monitoring will not be possible until it is added to accessibility clients`. On Mac, you need to add the script (IDE/terminal) both on accessibility and input monitoring.
-
-**Note**: The code works on macOS. The underlying shortcuts in the code like Cmd+Shift+Left, Cmd+C, Cmd+V might have to be changed for Linux & Windows (e.g. `Key.cmd` -> `Key.ctrl`).
-
-## Customize
-
-Hotkeys, prompt, and Ollama config can be easily customized and extended in the code.
-
-For example, here are some prompt templates you can try:
-
-```python
-from string import Template
-
-PROMPT_TEMPLATE_FIX_TEXT = Template(
-    """Fix all typos and casing and punctuation in this text, but preserve all new line characters:
-
-$text
-
-Return only the corrected text."""
-)
-
-PROMPT_TEMPLATE_GENERATE_TEXT = Template(
-    """Generate a snarky paragraph with 3 sentences about the following topic:
-
-$text
-
-Return only the corrected text."""
-)
-
-PROMPT_TEMPLATE_SUMMARIZE_TEXT = Template(
-    """Summarize the following text in 3 sentences:
-
-$text
-
-Return only the corrected text."""
-)
-```
+- The script is designed for macOS. Keyboard shortcuts may need adjustment for Linux or Windows.
+- Ensure you have the necessary permissions for keyboard input monitoring.
+- When using PyLLMs models, make sure you have the required API keys set up in your environment.
